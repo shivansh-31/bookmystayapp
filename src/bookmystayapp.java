@@ -1,7 +1,7 @@
 /**
  * Book My Stay App
  * Hotel Booking Management System
- * @author Sanskriti
+ * @author SHIVANSH DHINGRA
  * @version 11.0
  */
 
