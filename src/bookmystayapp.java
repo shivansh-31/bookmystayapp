@@ -1,9 +1,8 @@
-
 /**
  * Book My Stay App
  * Hotel Booking Management System
- * @author shivansh dhingra
- * @version 6.1
+ * @author SHIVANSH DHINGRA
+ * @version 7.0
  */
 
 import java.util.*;
@@ -18,102 +17,75 @@ class Reservation {
     }
 }
 
-class BookingRequestQueue {
-    Queue<Reservation> queue;
+class AddOnService {
+    String serviceName;
+    int price;
 
-    BookingRequestQueue() {
-        queue = new LinkedList<>();
-    }
-
-    void addRequest(Reservation r) {
-        queue.add(r);
-    }
-
-    Reservation getNextRequest() {
-        return queue.poll();
-    }
-
-    boolean hasRequests() {
-        return !queue.isEmpty();
+    AddOnService(String serviceName, int price) {
+        this.serviceName = serviceName;
+        this.price = price;
     }
 }
 
-class RoomInventory {
-    HashMap<String, Integer> inventory;
+class AddOnServiceManager {
 
-    RoomInventory() {
-        inventory = new HashMap<>();
-        inventory.put("Single Room", 2);
-        inventory.put("Double Room", 2);
-        inventory.put("Suite Room", 1);
+    HashMap<String, List<AddOnService>> reservationServices;
+
+    AddOnServiceManager() {
+        reservationServices = new HashMap<>();
     }
 
-    int getAvailability(String type) {
-        return inventory.get(type);
+    void addService(Reservation r, AddOnService service) {
+
+        reservationServices.putIfAbsent(r.guestName, new ArrayList<>());
+        reservationServices.get(r.guestName).add(service);
+
+        System.out.println("Service Added for " + r.guestName);
+        System.out.println("Service: " + service.serviceName);
+        System.out.println("Cost: " + service.price);
+        System.out.println();
     }
 
-    void decreaseAvailability(String type) {
-        inventory.put(type, inventory.get(type) - 1);
-    }
-}
+    void calculateTotalCost(Reservation r) {
 
-class BookingService {
+        List<AddOnService> services = reservationServices.get(r.guestName);
 
-    HashMap<String, Set<String>> allocatedRooms;
-    Set<String> usedRoomIds;
-
-    BookingService() {
-        allocatedRooms = new HashMap<>();
-        usedRoomIds = new HashSet<>();
-    }
-
-    void allocateRoom(Reservation r, RoomInventory inventory) {
-
-        if (inventory.getAvailability(r.roomType) > 0) {
-
-            String roomId = r.roomType.substring(0, 2).toUpperCase() + (usedRoomIds.size() + 1);
-
-            if (!usedRoomIds.contains(roomId)) {
-
-                usedRoomIds.add(roomId);
-
-                allocatedRooms.putIfAbsent(r.roomType, new HashSet<>());
-                allocatedRooms.get(r.roomType).add(roomId);
-
-                inventory.decreaseAvailability(r.roomType);
-
-                System.out.println("Reservation Confirmed for " + r.guestName);
-                System.out.println("Room Type: " + r.roomType);
-                System.out.println("Room ID: " + roomId);
-                System.out.println();
-            }
-
-        } else {
-            System.out.println("No rooms available for " + r.guestName + " (" + r.roomType + ")");
+        if (services == null) {
+            System.out.println("No add-on services selected for " + r.guestName);
             System.out.println();
+            return;
         }
+
+        int total = 0;
+
+        for (AddOnService s : services) {
+            total += s.price;
+        }
+
+        System.out.println("Guest: " + r.guestName);
+        System.out.println("Total Add-On Cost: " + total);
+        System.out.println();
     }
 }
 
-public class UseCase6RoomAllocationService {
+public class UseCase7AddOnServiceSelection {
     public static void main(String[] args) {
 
         System.out.println("Book My Stay");
         System.out.println("Hotel Booking Management System");
-        System.out.println("Version 6.1");
+        System.out.println("Version 7.0");
 
-        BookingRequestQueue queue = new BookingRequestQueue();
-        RoomInventory inventory = new RoomInventory();
-        BookingService bookingService = new BookingService();
+        Reservation r1 = new Reservation("Aman", "Single Room");
+        Reservation r2 = new Reservation("Neha", "Double Room");
 
-        queue.addRequest(new Reservation("Aman", "Single Room"));
-        queue.addRequest(new Reservation("Neha", "Double Room"));
-        queue.addRequest(new Reservation("Rahul", "Suite Room"));
-        queue.addRequest(new Reservation("Priya", "Single Room"));
+        AddOnServiceManager manager = new AddOnServiceManager();
 
-        while (queue.hasRequests()) {
-            Reservation r = queue.getNextRequest();
-            bookingService.allocateRoom(r, inventory);
-        }
+        manager.addService(r1, new AddOnService("Breakfast", 500));
+        manager.addService(r1, new AddOnService("Airport Pickup", 1200));
+
+        manager.addService(r2, new AddOnService("Spa Service", 2000));
+
+        manager.calculateTotalCost(r1);
+        manager.calculateTotalCost(r2);
     }
 }
